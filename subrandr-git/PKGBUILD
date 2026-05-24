@@ -1,0 +1,43 @@
+pkgname=subrandr-git
+gitname=subrandr
+pkgver=r.head
+pkgrel=1
+pkgdesc='An experimental subtitle rendering library (C-API)'
+arch=('x86_64')
+url='https://github.com/afishhh/subrandr'
+license=('MPL-2.0')
+depends=('gcc-libs' 'glibc' 'fontconfig' 'freetype2' 'harfbuzz')
+makedepends=('cargo' 'git')
+provides=('subrandr' 'libsubrandr.so')
+conflicts=('subrandr')
+source=('git+https://github.com/afishhh/subrandr.git')
+sha256sums=('SKIP')
+
+pkgver() {
+    cd subrandr
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+    cd subrandr
+    cargo xtask build
+}
+
+package() {
+  cd subrandr
+  DESTDIR="$pkgdir" cargo xtask install --prefix /usr --destdir "$pkgdir"
+  
+  # Arch Linux UsrMerge fix: move /lib to /usr/lib
+  if [ -d "$pkgdir/lib" ]; then
+    mkdir -p "$pkgdir/usr/lib"
+    mv "$pkgdir"/lib/* "$pkgdir/usr/lib/"
+    rmdir "$pkgdir/lib"
+  fi
+
+  # Fix for missing headers: move root-level /include to /usr/include
+  if [ -d "$pkgdir/include" ]; then
+    mkdir -p "$pkgdir/usr/include"
+    mv "$pkgdir"/include/* "$pkgdir/usr/include/"
+    rmdir "$pkgdir/include"
+  fi
+}
