@@ -1,4 +1,4 @@
-name: Build mpv-git + subrandr for Arch Linux
+name: Build mpv-git + subrandr-git for Arch
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
           # Give builder ownership of the workspace so makepkg can write there
           chown -R builder:builder $GITHUB_WORKSPACE
 
-      - name: Build subrandr
+      - name: Build subrandr-git
         run: |
           su - builder -c "
             cd $GITHUB_WORKSPACE/subrandr-git
