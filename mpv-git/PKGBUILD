@@ -6,7 +6,7 @@
 # Contributor: Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
 # Contributor: Eivind Uggedal <eivind@uggedal.com>
 
-pkgname=mpv-git
+pkgname=mpv-subrandr-git
 gitname=mpv
 pkgver=0.38.0_757_gf6d931301b
 pkgrel=1

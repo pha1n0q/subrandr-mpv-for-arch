@@ -1,8 +1,8 @@
-pkgname=subrandr-git
+pkgname=subrandr-c-git
 gitname=subrandr
 pkgver=r.head
 pkgrel=1
-pkgdesc='An experimental subtitle rendering library (C-API)'
+pkgdesc='An experimental subtitle rendering library (C API)'
 arch=('x86_64')
 url='https://github.com/afishhh/subrandr'
 license=('MPL-2.0')
