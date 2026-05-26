@@ -19,7 +19,7 @@ jobs:
 
       - name: Update system and install base dependencies
         run: |
-          pacman -Syu --noconfirm git sudo rust
+          pacman -Syu --noconfirm git sudo rust github-cli
 
       - name: Create non-root builder account
         run: |
@@ -45,7 +45,7 @@ jobs:
       - name: Stage packages for upload
         run: |
           mkdir -p staging/
-          find $GITHUB_WORKSPACE -name "*.pkg.tar.zst" -exec cp {} staging/ \;
+          find $GITHUB_WORKSPACE -not -path "*/staging/*" -name "*.pkg.tar.zst" -exec cp {} staging/ \;
 
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -57,9 +57,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_TAG="build-$(date +'%Y-%m-%d-%H%M%S')"
+          RELEASE_TAG="build-$(date -u +'%Y-%m-%d-%H%M%S')"
+          RELEASE_DATE=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
 
           gh release create "$RELEASE_TAG" staging/*.pkg.tar.zst \
             --target ${{ github.sha }} \
-            --title "$(date +'%Y-%m-%d %H:%M:%S' UTC)" \
-            --notes "Automated mpv-subrandr-git + subrandr-c-git build compiled on $(date +'%Y-%m-%d %H:%M:%S' UTC)."
+            --title "$RELEASE_DATE" \
+            --notes "Automated mpv-subrandr-git + subrandr-c-git build compiled on $RELEASE_DATE."
