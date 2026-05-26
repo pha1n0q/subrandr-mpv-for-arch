@@ -14,12 +14,12 @@ jobs:
       image: archlinux:base-devel
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-
       - name: Update system and install base dependencies
         run: |
           pacman -Syu --noconfirm git sudo rust github-cli
+
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Create non-root builder account
         run: |
@@ -57,8 +57,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
           RELEASE_TAG="build-$(date -u +'%Y-%m-%d-%H%M%S')"
           RELEASE_DATE=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
 
