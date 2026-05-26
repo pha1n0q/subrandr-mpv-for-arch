@@ -1,9 +1,11 @@
-name: Build mpv-git + subrandr-git for Arch
+name: Build mpv-subrandr-git + subrandr-c-git for Arch
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'
 
 jobs:
   build:
@@ -17,8 +19,7 @@ jobs:
 
       - name: Update system and install base dependencies
         run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm git sudo rust
+          pacman -Syu --noconfirm git sudo rust
 
       - name: Create non-root builder account
         run: |
@@ -27,14 +28,14 @@ jobs:
           # Give builder ownership of the workspace so makepkg can write there
           chown -R builder:builder $GITHUB_WORKSPACE
 
-      - name: Build subrandr-git
+      - name: Build subrandr-c-git
         run: |
           su - builder -c "
             cd $GITHUB_WORKSPACE/subrandr-git
             makepkg -si --noconfirm
           "
 
-      - name: Build mpv-git
+      - name: Build mpv-subrandr-git
         run: |
           su - builder -c "
             cd $GITHUB_WORKSPACE/mpv-git
@@ -46,8 +47,19 @@ jobs:
           mkdir -p staging/
           find $GITHUB_WORKSPACE -name "*.pkg.tar.zst" -exec cp {} staging/ \;
 
-      - name: Upload compiled packages
+      - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: arch-packages
           path: staging/*.pkg.tar.zst
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_TAG="build-$(date +'%Y-%m-%d-%H%M%S')"
+
+          gh release create "$RELEASE_TAG" staging/*.pkg.tar.zst \
+            --target ${{ github.sha }} \
+            --title "$(date +'%Y-%m-%d %H:%M:%S' UTC)" \
+            --notes "Automated mpv-subrandr-git + subrandr-c-git build compiled on $(date +'%Y-%m-%d %H:%M:%S' UTC)."
